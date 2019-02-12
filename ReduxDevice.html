@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title></title>
+	</head>
+	<body onload="start()">
+
+		<script type="text/javascript">
+			var body = document.getElementsByTagName("body")[0];
+			var materialCodex = ["Rock"];
+			var weaponCodex = ["Pen"];
+			var foodCodex = ["Seeds"];
+			var codexLabels = ["Material", "Weapon", "Food"]
+			var windowWidth = "200px";	
+
+			function start() {
+				createBox("box1");
+			}
+
+
+
+
+			function createBox(boxName){
+				var selectArea = null;
+				var selectArea = document.createElement("select");
+				selectArea.size = 7;
+				selectArea.style.width = windowWidth;
+
+				var codexMash = [];
+				codexMash.push(materialCodex, weaponCodex, foodCodex)
+
+
+				for (var c = 0; c < codexMash.length; c++) {		
+					selectArea.innerHTML += "<optgroup label='" + codexLabels[c] + "'>";
+
+					for (var i = 0; i < codexMash[c].length; i++) {
+							selectArea.innerHTML += "<option>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + codexMash[c][i] + "</option>";
+					}
+
+					selectArea.innerHTML += "</optgroup>";	
+				}
+
+
+				body.appendChild(selectArea);
+			}
+
+
+				/*holder = document.createElement("optgroup");
+				holder.cols = windowWidth;
+				holder.rows = windowHeight;
+				holder.label = boxName;
+				holder.readOnly = true;
+
+				for (var i = 0; i < textArray.length; i++) {
+					holder.innerHTML = "-" + textArray[i];
+				}*/
+
+				//body.appendChild(selectArea);
+
+
+
+			
+
+
+			/*
+			-Create array of example items in an array
+			-Make Auto generated lists for gatchas    
+				exampleArray.push(exampleStringToAdd); 
+				document.getElementById("exampleArray").children0].innerHTML += "<li>"+exampleArray[exampleArray.length-1]+"</li>";
+
+			-Create method to randomly pick an item from a list with a button below each list <button type="button">Example Text.</button>
+
+			-Create items to populate the lists/gatchas:
+
+						NAME #1									Name #2									Name #3
+				_________________________				_________________________				_________________________
+				|%_of_category CATEGORY |				|%_of_category CATEGORY |				|%_of_category CATEGORY |
+				|	>%_of_item ITEM 	|				|	>%_of_item ITEM 	|				|	>%_of_item ITEM 	|
+				|	>%_of_item2 ITEM 	|				|	>%_of_item2 ITEM 	|				|	>%_of_item2 ITEM 	|
+				|%_of_other CATEGORY 	|				|%_of_other CATEGORY 	|				|%_of_other CATEGORY 	|
+				|	>???				|				|						|				|						|
+				|ETC					|				|ETC					|				|ETC					|
+				-------------------------				-------------------------				-------------------------
+					   10000000          					   	 500         					  		 3500        
+						[SPIN]          						[SPIN]          						[SPIN]          
+
+
+			-Add inventory to store said items
+				-Ability to navigate (sort)
+				-Add descriptions to items
+				-Assign value to items to be used in generation
+			-Impliment unique slots based
+
+				
+
+
+						*/
+
+
+
+
+
+
+
+		</script>
+	</body>
+</html>
