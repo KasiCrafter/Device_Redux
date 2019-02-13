@@ -7,18 +7,37 @@
 
 		<script type="text/javascript">
 			var body = document.getElementsByTagName("body")[0];
-			var materialCodex = ["Rock"];
-			var weaponCodex = ["Pen"];
-			var foodCodex = ["Seeds"];
-			var codexLabels = ["Material", "Weapon", "Food"]
 			var windowWidth = "200px";	
+			var gatchaValues = [];
+			var itemCodex = [
+
+				["Material",
+					{
+						id : 0,
+						name: "Rock"
+					},
+				], 
+
+				["Weapon",
+					{
+						id : 1,
+						name :"Pen"						
+					},
+				], 
+
+				["Food",
+					{
+						id : 2,
+						name : "Seeds"						
+					},
+				]
+			];
+
+
 
 			function start() {
 				createBox("box1");
 			}
-
-
-
 
 			function createBox(boxName){
 				var selectArea = null;
@@ -26,21 +45,15 @@
 				selectArea.size = 7;
 				selectArea.style.width = windowWidth;
 
-				var codexMash = [];
-				codexMash.push(materialCodex, weaponCodex, foodCodex)
+				for (var c = 0; c < itemCodex.length; c++) {		
+					selectArea.innerHTML += "<optgroup label='" + itemCodex[c][0] + "'>";
 
-
-				for (var c = 0; c < codexMash.length; c++) {		
-					selectArea.innerHTML += "<optgroup label='" + codexLabels[c] + "'>";
-
-					for (var i = 0; i < codexMash[c].length; i++) {
-							selectArea.innerHTML += "<option>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + codexMash[c][i] + "</option>";
+					for (var i = 1; i < itemCodex[c].length; i++) {
+							selectArea.innerHTML += "<option>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + itemCodex[c][i].name + "</option>";
 					}
 
 					selectArea.innerHTML += "</optgroup>";	
 				}
-
-
 				body.appendChild(selectArea);
 			}
 
@@ -63,14 +76,14 @@
 
 
 			/*
-			-Create array of example items in an array
+			xCreate array of example items in an array
 			-Make Auto generated lists for gatchas    
 				exampleArray.push(exampleStringToAdd); 
 				document.getElementById("exampleArray").children0].innerHTML += "<li>"+exampleArray[exampleArray.length-1]+"</li>";
 
 			-Create method to randomly pick an item from a list with a button below each list <button type="button">Example Text.</button>
 
-			-Create items to populate the lists/gatchas:
+			xCreate items to populate the lists/gatchas:
 
 						NAME #1									Name #2									Name #3
 				_________________________				_________________________				_________________________
@@ -90,6 +103,26 @@
 				-Add descriptions to items
 				-Assign value to items to be used in generation
 			-Impliment unique slots based
+
+			-Gatcha generation plan:
+				-Each gatcha will have "preferences", modifiers which make it more/less/not likely to pick out items with certain qualities
+					-Qualities such as rarity, items that have already been picked, items which come in bundles, enemy stregnth, item category, item's "cost" in allowance, etc
+				-Each gatcha can only "draft" items until their totoal "cost" hits its total value limit
+				-Each item will have an associated "cost modifier" to it, with better/more powerful items being more expensive, weak items being cheaper, and enemy capsules which increase the allowance cap of whatever gatcha they get drafted into; effectively negative in value.
+
+				TLDR:
+				>Lookup base item value ceiling adjusted for player performance (higher for harder difficulties, lower for easier ones)
+				>Eliminate items whose value exceed this ceiling
+				>Pick 3 random gatcha
+				>Gatchas draft items based on preferences until full they hit value cap
+				>Gatchas draft enemies based on their enemy weighting
+				>Enemies increase cap based on power.
+				>Gatchas draft items again with this new cap.
+				>Calculate percentage of total items in each category as header (must add up to 100%)
+				>Within each category, use the item's cost to increase/decrease this relative percentage
+				>Assign relative percentage to item drop chance
+				>Obscure item names as "???"
+				>Done
 
 				
 
