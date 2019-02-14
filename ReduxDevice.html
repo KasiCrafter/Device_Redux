@@ -7,27 +7,27 @@
 
 		<script type="text/javascript">
 			var body = document.getElementsByTagName("body")[0];
-			var windowWidth = "200px";	
+			var windowWidth = 200;	
 			var gatchaValues = [];
 			var itemCodex = [
 
 				["Material",
 					{
-						id : 0,
+						num : 0,
 						name: "Rock"
 					},
 				], 
 
 				["Weapon",
 					{
-						id : 1,
+						num : 1,
 						name :"Pen"						
 					},
 				], 
 
 				["Food",
 					{
-						id : 2,
+						num : 2,
 						name : "Seeds"						
 					},
 				]
@@ -37,13 +37,22 @@
 
 			function start() {
 				createBox("box1");
+				createBox("box2");
+				createBox("box3");
+				body.innerHTML += "<br>";
+				createButton();
+				createButton();
+				createButton();
 			}
 
 			function createBox(boxName){
 				var selectArea = null;
 				var selectArea = document.createElement("select");
 				selectArea.size = 7;
-				selectArea.style.width = windowWidth;
+				selectArea.style.width = windowWidth + "px";
+				selectArea.style.position = "relative";
+				selectArea.style.left = "20%";
+				selectArea.style.margin = "0px 0px 0px 60px";
 
 				for (var c = 0; c < itemCodex.length; c++) {		
 					selectArea.innerHTML += "<optgroup label='" + itemCodex[c][0] + "'>";
@@ -54,23 +63,23 @@
 
 					selectArea.innerHTML += "</optgroup>";	
 				}
+
 				body.appendChild(selectArea);
 			}
 
+			function createButton() {
+				var buttonHolder = document.createElement("button");
 
-				/*holder = document.createElement("optgroup");
-				holder.cols = windowWidth;
-				holder.rows = windowHeight;
-				holder.label = boxName;
-				holder.readOnly = true;
+				buttonHolder.style.position = "relative";
+				buttonHolder.style.left = "20%";
+				buttonHolder.style.margin = "0px 0px 0px " + windowWidth + "px" ;
 
-				for (var i = 0; i < textArray.length; i++) {
-					holder.innerHTML = "-" + textArray[i];
-				}*/
+				buttonHolder.type = "button";
+				buttonHolder.style.display = "block-inline";
+				buttonHolder.innerHTML = "SPIN!";
 
-				//body.appendChild(selectArea);
-
-
+				body.appendChild(buttonHolder);
+			}
 
 			
 
