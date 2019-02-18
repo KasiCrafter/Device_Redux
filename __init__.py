@@ -1,9 +1,10 @@
-from src import Bunn as B
-import asyncio
 import sys
+import asyncio
+from src import Bunn as B
+from src import Consts as C
 import html.parser as htmlparser
-parser = htmlparser.HTMLParser()
 
+parser = htmlparser.HTMLParser()
 users = {}
 keyPhrase = "???"
 active = False
@@ -11,37 +12,24 @@ active = False
 def init():  
   pass
 
+
 async def on_message(msg):
-    if (active and keyPhrase != "???" and msg.message.lower().find(keyPhrase.lower())):
-        addToRaffle(msg)
-        
-async def addToRaffle(msg):
-    global users
-        
-    username = msg.message.display_name
-    numId = msg.message.user_id
-        
-    for folks in users:
-        if (folks == msg.message.user_id):
-            await B.send_message("Looks like you're already in the raffle, @{}!".format(username))
-            break
-    users[username] = numId
-    await B.send_message("@{} successfully joined the raffle!".format(username))
-        
-      
+  global keyPhrase
+  msg = await sanitize_input(msg)
+    
+  if (active and keyPhrase != "???" and msg.message.lower().find(keyPhrase.lower()) != -1 and msg.message[0] != C.command_char):
+      await addToRaffle(msg)
+  elif (not active and keyPhrase != "???" and msg.message.lower().find(keyPhrase.lower()) != -1):
+      await B.send_message("No open raffle to join!")      
+
       
 async def on_command(msg):
     global users
     global active
     global keyPhrase
   
-    print(msg.message)
-    msg.message = parser.unescape(msg.message)
-    print(msg.message)
+    msg = await sanitize_input(msg)
     cmd = msg.message[1:].split(" ")
-    print(cmd)
-   
-    
 
     if (cmd[0] == "gatcha"):
         try:
@@ -83,7 +71,7 @@ async def on_command(msg):
                       
                 elif (cmd[1] == "phrase"):
                   if (len(cmd) > 2):   
-                      extraCmd = cmd
+                      extraCmd = cmd[2:]
                       extraCmd = " ".join(extraCmd)  
                         
                       if (extraCmd != "???"):
@@ -94,7 +82,7 @@ async def on_command(msg):
                        
                   elif (len(cmd) == 2):
                       if (keyPhrase != "???"):
-                          await B.send_message("The key phrase is currently:      {}.".format(keyPhrase))  
+                          await B.send_message("The key phrase is currently >>>>> {}.".format(keyPhrase))  
                       elif (keyPhrase == "???"):
                           await B.send_message("There is no key phrase at this time. Please set one using the '{0}{1} phrase' command!".format(msg.message[0], cmd[0]))                  
                       else:
@@ -107,16 +95,40 @@ async def on_command(msg):
             print(sys.exc_info())
             pass
 
-  
+
+async def addToRaffle(msg):
+    global users
+    
+    username = msg.display_name
+    numId = msg.user_id
+        
+    for folks in users:
+        if (folks == username):
+            print(folks)
+            await B.send_message("Looks like you're already in the raffle, @{}!".format(username))
+            return
+    users[username] = numId
+    await B.send_message("@{} successfully joined the raffle!".format(username))
+        
+      
+async def sanitize_input(msg):
+  try:
+    msg.message = parser.unescape(msg.message)
+    return msg
+  except:
+    print("Sanitize error")
 '''             
-"open":
-"close":
+"open":ok
+"close":ok
 "clear": 
 "help":
 "spin":
 "redo":
-"phrase":
-"add":  
+"phrase":ok
+"add":
 "remove":
-"blacklist":  
+"blacklist": 
+"leave" (for participants)
+cooldown system
+persistent tracking
 '''
