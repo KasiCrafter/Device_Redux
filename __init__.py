@@ -8,7 +8,7 @@ from src import Bunn as B
 import html.parser as htmlparser
 
 parser = htmlparser.HTMLParser()
-users = {}
+users = []
 keyPhrase = "???"
 active = False
 
@@ -19,9 +19,11 @@ def init():
 async def on_message(msg):
   global keyPhrase
   msg = await sanitize_input(msg)
+  
+  print(msg.message)
 
     
-  if (active and keyPhrase != "???" and msg.message.lower().find(keyPhrase.lower()) != -1 and msg.message[0] != C.command_char):
+  if (active and keyPhrase != "???" and msg.message.lower().find(keyPhrase.lower()) != -1 and msg.message[0] != "!"):
       await addToRaffle(msg, False)
   elif (not active and keyPhrase != "???" and msg.message.lower().find(keyPhrase.lower()) != -1):
       await B.send_message("No open raffle to join yet!")      
@@ -102,7 +104,7 @@ async def on_command(msg):
                     buffer = ""
 
                     if (len(users) > 0):
-                        users = {}
+                        users = []
                         buffer = "The list of raffle entrants has been reset "
                     else:
                         buffer = "The current list of raffle entrants is already empty "                    
@@ -119,26 +121,39 @@ async def on_command(msg):
                 elif (smallCmd == "list"):
                       if (len(users) > 0):
                           buffer = "[Current Raffle Entrants ({})]:".format(len(users))
-
+                        
                           for nerds in users:
                               buffer += " {} ,".format(nerds)
-
                           buffer = buffer.strip(",")
-
                           await B.send_message(buffer)
 
                       else:
                           await B.send_message("There are no entrants to list.")
 
+                          
                 elif (smallCmd == "add"):
                     if (len(cmd) == 3 and (cmd[2].startswith("@") or cmd[2].startswith("#"))):
-                        await addToRaffle(cmd, True, msg)                    
+                        await addToRaffle(cmd, True, msg)     # Format: (Prased command split into pieces, Is forced, Raw message object)               
                     else:
                         await B.send_message("Improper input! Please try again using: '{0} {1} @<username>' for named entrants or '{0} {1} #<name>' for anonymous ones!".format(cmd[0], cmd[1]))
                                              
+                   
+                elif (smallCmd == "spin"):
+                    print(users)
+                  
+                    if (len(users) > 1):                       
+                        await B.send_message("Raffle spinning! Good luck, guys!")
+                        
+                        sendToSpin = " ".join(users)
+                        await asyncio.sleep(1)
+                        await B.raffle_init(users)
+                    elif (len(users) <= 1):
+                        await B.send_message("Sorry, but there aren't enough users for a raffle! You need at least 2 people!")
+                
                 else:
                     await B.send_message("Sorry, '{0}' is an invalid {1} command".format(cmd[1], cmd[0].lower()))
-                      
+                                             
+                                             
         except:
             print("Error in gatcha.")
             print(sys.exc_info())
@@ -146,28 +161,28 @@ async def on_command(msg):
 
           
 
-async def addToRaffle(cmd, forced, msg = ""):
+async def addToRaffle(natural, forced, forceInfo = ""):
     global users
     
-    if (msg == "" and not forced):
-        await B.send_message("If you can see this, then the nerd who made this plugin did something wrong. Please inform him. He'll know.!")
+    if (forceInfo == "" and forced):
+        await B.send_message("If you can see this, then the nerd who made this plugin did something wrong. Please inform him. He'll know!")
       
-    if (forced):
-        if (len(msg.mentions) > 0 and cmd[2].startswith("@")):
-            username = msg.mentions[0].display_name
-            numId = msg.mentions[0].user_id
+    if (forced and forceInfo != ""):
+        if (len(forceInfo.mentions) > 0 and natural[2].startswith("@")):
+            username = forceInfo.mentions[0].display_name
+            numId = forceInfo.mentions[0].user_id
         
-        elif (cmd[2].startswith("#")):
-            username = cmd[2].lstrip("#").title()
+        elif (natural[2].startswith("#")):
+            username = natural[2].lstrip("#").title()
             numId = 0
 
         else:
-            await B.send_message("Unexpected input: '{}'! Manual entry cancelled.".format(cmd[2]))
+            await B.send_message("Unexpected input: '{}'! Manual entry cancelled.".format(natural[2]))
             return  
 
-    else:    
-        username = msg.message.display_name
-        numId = msg.message.user_id
+    elif (not forced):    
+        username = natural.display_name
+        numId = natural.user_id
         
         
     for folks in users:
@@ -175,8 +190,9 @@ async def addToRaffle(cmd, forced, msg = ""):
             print(folks)
             await B.send_message("Looks like you're already in the raffle, @{}!".format(username))
             return
-                                             
-    users[username] = numId
+            
+    users.append(username)
+    
     buffer = "{} successfully joined the raffle!".format(username)
        
     if (numId != 0):
@@ -205,7 +221,7 @@ async def output_phrase():
 "spin": CRITICAL
 "redo":
 "phrase":ok
-"add":
+"add": ok
 "remove":
 "blacklist": 
 "leave" (for participants)
