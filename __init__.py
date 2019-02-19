@@ -49,7 +49,7 @@ async def on_command(msg):
                     
             elif (len(cmd) > 1):
                 smallCmd = cmd[1].lower()
-                print(smallCmd)
+                #print(smallCmd)
               
                 if (smallCmd == "open"):
                     if (not active):
@@ -131,10 +131,10 @@ async def on_command(msg):
                           await B.send_message("There are no entrants to list.")
 
                 elif (smallCmd == "add"):
-                    if (len(cmd) == 3):
-                        await addToRaffle(cmd[2], True)                    
+                    if (len(cmd) == 3 and (cmd[2].startswith("@") or cmd[2].startswith("#"))):
+                        await addToRaffle(cmd, True, msg)                    
                     else:
-                        await B.send_message("Improper inputs ({0})! Please try again using the format of: '{1}{2} <username>'".format(len(cmd), cmd[0], cmd[1]))
+                        await B.send_message("Improper input! Please try again using: '{0} {1} @<username>' for named entrants or '{0} {1} #<name>' for anonymous ones!".format(cmd[0], cmd[1]))
                                              
                 else:
                     await B.send_message("Sorry, '{0}' is an invalid {1} command".format(cmd[1], cmd[0].lower()))
@@ -144,32 +144,31 @@ async def on_command(msg):
             print(sys.exc_info())
             pass
 
+          
 
-async def addToRaffle(msg, forced):
+async def addToRaffle(cmd, forced, msg = ""):
     global users
-    global listRaw
+    
+    if (msg == "" and not forced):
+        await B.send_message("If you can see this, then the nerd who made this plugin did something wrong. Please inform him. He'll know.!")
       
     if (forced):
-        print(msg)
-        await B.request_user_list()        
-        await asyncio.sleep(1)
+        if (len(msg.mentions) > 0 and cmd[2].startswith("@")):
+            username = msg.mentions[0].display_name
+            numId = msg.mentions[0].user_id
         
-        userRaw = self.user_list
-        print(userRaw)
-
-      
-        if (userRaw != None): 
-            print("User found!")
-            username = userRaw.display_name
-            numId = userRaw.user_id
-        else:
-            print("User not found. Inserting dummy user.")
-            username = msg
+        elif (cmd[2].startswith("#")):
+            username = cmd[2].lstrip("#").title()
             numId = 0
-                                             
+
+        else:
+            await B.send_message("Unexpected input: '{}'! Manual entry cancelled.".format(cmd[2]))
+            return  
+
     else:    
-        username = msg.display_name
-        numId = msg.user_id
+        username = msg.message.display_name
+        numId = msg.message.user_id
+        
         
     for folks in users:
         if (folks == username):
@@ -178,9 +177,13 @@ async def addToRaffle(msg, forced):
             return
                                              
     users[username] = numId
-    await B.send_message("@{} successfully joined the raffle!".format(username))
-
-
+    buffer = "{} successfully joined the raffle!".format(username)
+       
+    if (numId != 0):
+        buffer = "@" + buffer
+    
+    await B.send_message(buffer)
+    
     
 
 async def sanitize_input(msg):
